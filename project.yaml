@@ -20,10 +20,10 @@ network:
   chaintypes:
     file: ./dist/chaintypes.js
 dataSources:
-  - kind: substrate/FrontierEvm
+  - kind: substrate/AcalaEvm
     startBlock: 1662400
     processor:
-      file: "./node_modules/@subql/frontier-evm-processor/dist/index.js"
+      file: ./dist/acalaEvm.js
       options:
         abi: comptroller
         address: '0x6111835ded0d415cD3D102A4A1b1d2015c1ee8BE' # Comptroller
@@ -34,12 +34,12 @@ dataSources:
       file: ./dist/index.js
       handlers:
         - handler: handleMarketListed
-          kind: substrate/FrontierEvmEvent
+          kind: substrate/AcalaEvmEvent
           filter:
             topics:
               - MarketListed(address)
         - handler: handleMarketEntered
-          kind: substrate/FrontierEvmEvent
+          kind: substrate/AcalaEvmEvent
           filter:
             topics:
               - MarketEntered(address,address)

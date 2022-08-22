@@ -1,5 +1,5 @@
 import { Market, Comptroller, Account } from "../types/models";
-import { FrontierEvmEvent, FrontierEvmCall } from "@subql/frontier-evm-processor";
+import { FrontierEvmEvent, FrontierEvmCall, FrontierEthProvider } from "@subql/frontier-evm-processor";
 import { BigNumber } from "ethers";
 import { CToken } from "../types/models/CToken";
 import { createAccount, updateCommonCTokenStats, zeroBD } from "./helpers";
@@ -12,6 +12,8 @@ type MarketEnteredEventArgs = [string, string] & { cToken: string; account: stri
 
 export async function handleMarketListed(event: FrontierEvmEvent<MarketListedEventArgs>): Promise<void> {
     logger.info(`MarketListed: ${event.args.cToken}`);
+    const bal = await new FrontierEthProvider().getBalance(event.args.cToken)
+    logger.info(`balance of cToken: ${bal.toString()}`);
     const ctoken = new CToken(event.args.cToken);
     ctoken.cToken = event.args.cToken;
     await ctoken.save();
