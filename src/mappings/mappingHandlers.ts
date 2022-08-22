@@ -1,29 +1,18 @@
 import { Market, Comptroller, Account } from "../types/models";
-import { createCTokenDatasource } from "../types/datasources";
-import { AcalaEvmEvent, AcalaEvmCall } from '@subql/acala-evm-processor';
+import { FrontierEvmEvent, FrontierEvmCall } from "@subql/frontier-evm-processor";
 import { BigNumber } from "ethers";
 import { CToken } from "../types/models/CToken";
 import { createAccount, updateCommonCTokenStats, zeroBD } from "./helpers";
-import { BaseProvider, EvmRpcProvider } from '@acala-network/eth-providers';
 import '@subql/types/dist/global';
-import { EvmProcessor } from "./evmProcessor";
 
 
 // Setup types from ABI
 type MarketListedEventArgs = [string] & { cToken: string; };
 type MarketEnteredEventArgs = [string, string] & { cToken: string; account: string; };
 
-export async function handleMarketListed(event: AcalaEvmEvent<MarketListedEventArgs>): Promise<void> {
+export async function handleMarketListed(event: FrontierEvmEvent<MarketListedEventArgs>): Promise<void> {
     logger.info(`MarketListed: ${event.args.cToken}`);
-    const apiPromise = api.rpc;
-    logger.info(`apiPromise: ${apiPromise}`);
-    const processor = new EvmProcessor(apiPromise as any);
-    await processor.isReady()
-    await processor.getBalance(event.args.cToken);
-    
     const ctoken = new CToken(event.args.cToken);
-
-
     ctoken.cToken = event.args.cToken;
     await ctoken.save();
     // Create the market for this token, since it's now been listed.
@@ -31,7 +20,7 @@ export async function handleMarketListed(event: AcalaEvmEvent<MarketListedEventA
     await market.save()
 }
 
-export async function handleMarketEntered(event: AcalaEvmEvent<MarketEnteredEventArgs>): Promise<void> {
+export async function handleMarketEntered(event: FrontierEvmEvent<MarketEnteredEventArgs>): Promise<void> {
     let market = await Market.get(event.args.cToken);
     // Null check needed to avoid crashing on a new market added. Ideally when dynamic data
     // sources can source from the contract creation block and not the time the

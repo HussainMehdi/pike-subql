@@ -20,10 +20,10 @@ network:
   chaintypes:
     file: ./dist/chaintypes.js
 dataSources:
-  - kind: substrate/AcalaEvm
+  - kind: substrate/FrontierEvm
     startBlock: 1662400
     processor:
-      file: ./dist/acalaEvm.js
+      file: "./node_modules/@subql/frontier-evm-processor/dist/index.js"
       options:
         abi: comptroller
         address: '0x6111835ded0d415cD3D102A4A1b1d2015c1ee8BE' # Comptroller
@@ -34,84 +34,12 @@ dataSources:
       file: ./dist/index.js
       handlers:
         - handler: handleMarketListed
-          kind: substrate/AcalaEvmEvent
+          kind: substrate/FrontierEvmEvent
           filter:
             topics:
               - MarketListed(address)
         - handler: handleMarketEntered
-          kind: substrate/AcalaEvmEvent
+          kind: substrate/FrontierEvmEvent
           filter:
             topics:
               - MarketEntered(address,address)
-        # - handler: handleAcalaEvmCall
-        #   kind: substrate/AcalaEvmCall
-        #   filter:
-        #     function: approve(address to,uint256 value)
-        #     #from: '0x0000000000000000000100000000000000000000'
-# templates:
-#   - name: CToken
-#     kind: substrate/AcalaEvm
-#     processor:
-#       file: './dist/acalaEvm.js'
-#       options:
-#         abi: CToken
-#         # we do not know the address at this point, it will be provided when instantiated
-#     assets:
-#         - name: CToken
-#           file: ./abis/ctoken.json
-#         - name: PriceOracle2
-#           file: ./abis/priceOracle2.json
-#         - name: ERC20
-#           file: ./abis/erc20.json
-#     mapping:
-#       entities:
-#         - User
-#         - Market
-#         - CTokenInfo
-#       file: ./dist/index.js
-#       handlers:
-#         - handler: handleMint
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - Mint(address,uint256,uint256)
-#         - handler: handleRedeem
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - Redeem(address,uint256,uint256)
-#         - handler: handleBorrow
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - Borrow(address,uint256,uint256,uint256)
-#         - handler: handleRepayBorrow
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - RepayBorrow(address,address,uint256,uint256,uint256)
-#         - handler: handleLiquidateBorrow
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - LiquidateBorrow(address,address,uint256,address,uint256)
-#         - handler: handleAccrueInterest
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - AccrueInterest(uint256,uint256,uint256)
-#         - handler: handleNewReserveFactor
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - NewReserveFactor(uint256,uint256)
-#         - handler: handleTransfer
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - Transfer(indexed address,indexed address,uint256)      
-#         - handler: handleNewMarketInterestRateModel
-#           kind: substrate/AcalaEvmEvent
-#           filter:
-#             topics:
-#               - NewMarketInterestRateModel(address,address)
