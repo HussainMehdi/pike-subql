@@ -20,7 +20,7 @@ network:
   chaintypes:
     file: ./dist/chaintypes.js
 dataSources:
-  - kind: substrate/FrontierEvm
+  - kind: substrate/AcalaEvm
     startBlock: 1662400
     processor:
       file: "./node_modules/@subql/frontier-evm-processor/dist/index.js"
