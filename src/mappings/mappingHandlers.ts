@@ -1,5 +1,4 @@
 import { Market, Comptroller, Account } from "../types/models";
-import { createCTokenDatasource } from "../types/datasources";
 import { AcalaEvmEvent, AcalaEvmCall } from '@subql/acala-evm-processor';
 import { BigNumber } from "ethers";
 import { CToken } from "../types/models/CToken";
