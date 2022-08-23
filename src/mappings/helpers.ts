@@ -1,6 +1,7 @@
 import { Account, AccountCToken, AccountCTokenTransaction } from "../types/models"
 
 export let zeroBD = BigInt(0)
+export let mantissaFactorBD: BigInt = BigInt(1e18)
 
 export async function createAccount(accountID: string): Promise<Account> {
   let account = new Account(accountID)

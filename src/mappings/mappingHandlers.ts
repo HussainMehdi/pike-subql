@@ -2,15 +2,22 @@ import { Market, Comptroller, Account } from "../types/models";
 import { AcalaEvmEvent, AcalaEvmCall } from '@subql/acala-evm-processor';
 import { BigNumber } from "ethers";
 import { CToken } from "../types/models/CToken";
-import { createAccount, updateCommonCTokenStats, zeroBD } from "./helpers";
+import { createAccount, mantissaFactorBD, updateCommonCTokenStats, zeroBD } from "./helpers";
 
 
 // Setup types from ABI
 type MarketListedEventArgs = [string] & { cToken: string; };
 type MarketEnteredEventArgs = [string, string] & { cToken: string; account: string; };
+type MarketExitedArgs = [string, string] & { cToken: string; account: string; };
+type NewCloseFactorArgs = [BigInt, BigInt] & { oldCloseFactorMantissa: BigInt; newCloseFactorMantissa: BigInt; };
+type NewCollateralFactorArgs = [string, BigInt, BigInt] & { cToken: string; oldCollateralFactorMantissa: BigInt; newCollateralFactorMantissa: BigInt; };
+type NewLiquidationIncentiveArgs = [BigInt, BigInt] & { oldLiquidationIncentiveMantissa: BigInt; newLiquidationIncentiveMantissa: BigInt; };
+type NewPriceOracleArgs = [string, string] & { oldPriceOracle: string; newPriceOracle: string; };
+type NewMaxAssetsArgs = [BigInt, BigInt] & { oldMaxAssets: BigInt; newMaxAssets: BigInt; };
 
 export async function handleMarketListed(event: AcalaEvmEvent<MarketListedEventArgs>): Promise<void> {
     logger.info(`MarketListed: ${event.args.cToken}`);
+    // await createDynamicDatasource('CToken', { cToken: event.args.cToken });
     const ctoken = new CToken(event.args.cToken);
     ctoken.cToken = event.args.cToken;
     await ctoken.save();
@@ -42,6 +49,74 @@ export async function handleMarketEntered(event: AcalaEvmEvent<MarketEnteredEven
         cTokenStats.enteredMarket = true
         await cTokenStats.save()
     }
+}
+
+export async function handleMarketExited(event: AcalaEvmEvent<MarketExitedArgs>): Promise<void> {
+    let market = await Market.get(event.args.cToken)
+    // Null check needed to avoid crashing on a new market added. Ideally when dynamic data
+    // sources can source from the contract creation block and not the time the
+    // comptroller adds the market, we can avoid this altogether
+    if (market != null) {
+        let accountID = event.args.account;
+        let account = await Account.get(accountID)
+        if (account == null) {
+            createAccount(accountID)
+        }
+
+        let cTokenStats = await updateCommonCTokenStats(
+            market.id,
+            market.symbol,
+            accountID,
+            event.transactionHash,
+            BigInt(event.blockTimestamp.getTime()),
+            event.blockNumber,
+            event.logIndex,
+        )
+        cTokenStats.enteredMarket = false
+        await cTokenStats.save()
+    }
+}
+
+export async function handleNewCloseFactor(event: AcalaEvmEvent<NewCloseFactorArgs>): Promise<void> {
+    let comptroller = await Comptroller.get('1')
+    comptroller.closeFactor = BigInt(+event.args.newCloseFactorMantissa)
+    await comptroller.save()
+}
+
+export async function handleNewCollateralFactor(event: AcalaEvmEvent<NewCollateralFactorArgs>): Promise<void> {
+    let market = await Market.get(event.args.cToken)
+    // Null check needed to avoid crashing on a new market added. Ideally when dynamic data
+    // sources can source from the contract creation block and not the time the
+    // comptroller adds the market, we can avoid this altogether
+    if (market != null) {
+        market.collateralFactor = BigInt(+event.args.newCollateralFactorMantissa / +mantissaFactorBD)
+        await market.save()
+    }
+}
+
+
+// This should be the first event acccording to etherscan but it isn't.... price oracle is. weird
+export async function handleNewLiquidationIncentive(event: AcalaEvmEvent<NewLiquidationIncentiveArgs>): Promise<void> {
+    let comptroller = await Comptroller.get('1')
+    comptroller.liquidationIncentive = BigInt(+event.args.newLiquidationIncentiveMantissa)
+    await comptroller.save()
+}
+
+
+// export async function handleNewMaxAssets(event: AcalaEvmEvent<NewMaxAssetsArgs>): Promise<void> {
+//   let comptroller = await Comptroller.get('1')
+//   comptroller.maxAssets = event.get.newMaxAssets
+//   await comptroller.save()
+// }
+
+export async function handleNewPriceOracle(event: AcalaEvmEvent<NewPriceOracleArgs>): Promise<void> {
+    let comptroller = await Comptroller.get('1')
+    // This is the first event used in this mapping, so we use it to create the entity
+    if (comptroller == null) {
+        comptroller = new Comptroller('1')
+    }
+    comptroller.priceOracle = event.args.newPriceOracle
+    await comptroller.save()
 }
 
 

@@ -43,11 +43,36 @@ dataSources:
           filter:
             topics:
               - MarketEntered(address,address)
-        # - handler: handleAcalaEvmCall
-        #   kind: substrate/AcalaEvmCall
+        - handler: handleMarketExited
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - MarketExited(address,address)
+        - handler: handleNewCloseFactor
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - NewCloseFactor(uint256,uint256)
+        - handler: handleNewCollateralFactor
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - NewCollateralFactor(address,uint256,uint256)
+        - handler: handleNewLiquidationIncentive
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - NewLiquidationIncentive(uint256,uint256)
+        # - handler: handleNewMaxAssets
+        #   kind: substrate/AcalaEvmEvent
         #   filter:
-        #     function: approve(address to,uint256 value)
-        #     #from: '0x0000000000000000000100000000000000000000'
+        #     topics:
+        #       - NewMaxAssets(uint256,uint256)
+        - handler: handleNewPriceOracle
+          kind: substrate/AcalaEvmEvent
+          filter:
+            topics:
+              - NewPriceOracle(address,address)
 # templates:
 #   - name: CToken
 #     kind: substrate/AcalaEvm
