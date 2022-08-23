@@ -23,7 +23,7 @@ dataSources:
   - kind: substrate/AcalaEvm
     startBlock: 1662400
     processor:
-      file: ./dist/acalaEvm.js
+      file: ./dist/acalaEvmProcessor.js
       options:
         abi: comptroller
         address: '0x6111835ded0d415cD3D102A4A1b1d2015c1ee8BE' # Comptroller

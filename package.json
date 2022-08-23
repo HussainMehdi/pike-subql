@@ -21,16 +21,18 @@
   "dependencies": {
     "@acala-network/type-definitions": "^4.1.1",
     "@subql/acala-evm-processor": "0.0.3-0",
-    "@subql/frontier-evm-processor": "0.0.3-0"
+    "@subql/frontier-evm-processor": "0.0.3-0",
+    "atob": "^2.1.2"
   },
   "devDependencies": {
-    "@polkadot/api": "^8",
-    "@subql/cli": "latest",
-    "@subql/types": "latest",
+    "@polkadot/api": "^9.2.3",
+    "@subql/cli": "1.5.0",
+    "@subql/types": "1.2.1",
     "typescript": "^4.4.4"
   },
   "exports": {
     "acalaEvm": "./node_modules/@subql/acala-evm-processor/dist/index.js",
-    "chaintypes": "./src/chaintypes.ts"
+    "chaintypes": "./src/chaintypes.ts",
+    "acalaEvmProcessor": "./src/acalaEvmProcessor.ts"
   }
 }
